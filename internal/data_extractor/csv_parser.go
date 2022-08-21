@@ -4,7 +4,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
-	"strconv"
 )
 
 // ip_address,country_code,country,city,latitude,longitude,mystery_value
@@ -48,39 +47,39 @@ func (csvParser) Extract(path string) (*Data, error) {
 		var isBadIP, isBadCountryCode, isBadCountry, isBadCity, isBadLat, isBadLon, isBadValue bool
 		ip, countryCode, country, city, latRaw, lonRaw, valueRaw := trimRow(rows[i])
 
-		if len(ip) == 0 {
+		if !isValidIP(ip) {
 			isBadIP = true
 			data.Stats.BadIPAddress++
 		}
 
-		if len(countryCode) == 0 {
+		if !isValidCountryCode(countryCode) {
 			isBadCountryCode = true
 			data.Stats.BadCountryCode++
 		}
 
-		if len(country) == 0 {
+		if !isValidCountry(country) {
 			isBadCountry = true
 			data.Stats.BadCountry++
 		}
 
-		if len(city) == 0 {
+		if !isValidCity(city) {
 			isBadCity = true
 			data.Stats.BadCity++
 		}
 
-		lat, err := strconv.ParseFloat(latRaw, 64)
+		lat, err := parseLatitude(latRaw)
 		if err != nil {
 			isBadLat = true
 			data.Stats.BadLatitude++
 		}
 
-		lon, err := strconv.ParseFloat(lonRaw, 64)
+		lon, err := parseLongitude(lonRaw)
 		if err != nil {
 			isBadLon = true
 			data.Stats.BadLongitude++
 		}
 
-		value, err := strconv.ParseInt(valueRaw, 10, 64)
+		value, err := parseMysteryValue(valueRaw)
 		if err != nil {
 			isBadValue = true
 			data.Stats.BadMysteryValue++
