@@ -21,6 +21,8 @@ const columsNumber = 7
 
 type csvParser struct{}
 
+func New() *csvParser { return new(csvParser) }
+
 func (csvParser) Extract(path string) (*Data, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -38,7 +40,10 @@ func (csvParser) Extract(path string) (*Data, error) {
 		return nil, fmt.Errorf("too few rows (%d)", len(rows))
 	}
 
-	data := &Data{Rows: make([]Row, 0, len(rows))}
+	data := &Data{
+		Rows:  make([]Row, 0, len(rows)),
+		Stats: Statics{RawRows: int64(len(rows))},
+	}
 	for i := 1; i < len(rows); i++ { // skip header
 		if len(rows[i]) != columsNumber {
 			continue
@@ -100,9 +105,27 @@ func (csvParser) Extract(path string) (*Data, error) {
 		})
 	}
 
+	unique := distinctByIP(data.Rows)
+	data.Stats.Doubles = int64(len(data.Rows) - len(unique))
+	data.Rows = unique
+
 	if len(data.Rows) == 0 {
 		return nil, fmt.Errorf("no valid rows in %d raw rows", len(rows))
 	}
 
 	return data, nil
+}
+
+func distinctByIP(rows []Row) []Row {
+	set := make(map[string]struct{}, len(rows))
+	unique := make([]Row, 0, len(rows))
+
+	for _, row := range rows {
+		if _, exists := set[row.IPAddress]; !exists {
+			set[row.IPAddress] = struct{}{}
+			unique = append(unique, row)
+		}
+	}
+
+	return unique
 }

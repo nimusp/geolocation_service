@@ -10,6 +10,8 @@ type Data struct {
 }
 
 type Statics struct {
+	RawRows         int64
+	Doubles         int64
 	BadIPAddress    int64
 	BadCountryCode  int64
 	BadCountry      int64
