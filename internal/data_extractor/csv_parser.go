@@ -46,40 +46,41 @@ func (csvParser) Extract(path string) (*Data, error) {
 		}
 
 		var isBadIP, isBadCountryCode, isBadCountry, isBadCity, isBadLat, isBadLon, isBadValue bool
+		ip, countryCode, country, city, latRaw, lonRaw, valueRaw := trimRow(rows[i])
 
-		if len(rows[i][ipAddressPosition]) == 0 {
+		if len(ip) == 0 {
 			isBadIP = true
 			data.Stats.BadIPAddress++
 		}
 
-		if len(rows[i][countryCodePosition]) == 0 {
+		if len(countryCode) == 0 {
 			isBadCountryCode = true
 			data.Stats.BadCountryCode++
 		}
 
-		if len(rows[i][countryPosition]) == 0 {
+		if len(country) == 0 {
 			isBadCountry = true
 			data.Stats.BadCountry++
 		}
 
-		if len(rows[i][cityPosition]) == 0 {
+		if len(city) == 0 {
 			isBadCity = true
 			data.Stats.BadCity++
 		}
 
-		lat, err := strconv.ParseFloat(rows[i][latitudePosition], 64)
+		lat, err := strconv.ParseFloat(latRaw, 64)
 		if err != nil {
 			isBadLat = true
 			data.Stats.BadLatitude++
 		}
 
-		lon, err := strconv.ParseFloat(rows[i][longitudePosition], 64)
+		lon, err := strconv.ParseFloat(lonRaw, 64)
 		if err != nil {
 			isBadLon = true
 			data.Stats.BadLongitude++
 		}
 
-		value, err := strconv.ParseInt(rows[i][mysteryValuePosition], 10, 64)
+		value, err := strconv.ParseInt(valueRaw, 10, 64)
 		if err != nil {
 			isBadValue = true
 			data.Stats.BadMysteryValue++
@@ -90,10 +91,10 @@ func (csvParser) Extract(path string) (*Data, error) {
 		}
 
 		data.Rows = append(data.Rows, Row{
-			IPAddress:    rows[i][ipAddressPosition],
-			CountryCode:  rows[i][countryCodePosition],
-			Country:      rows[i][countryPosition],
-			City:         rows[i][cityPosition],
+			IPAddress:    ip,
+			CountryCode:  countryCode,
+			Country:      country,
+			City:         city,
 			Latitude:     lat,
 			Longitude:    lon,
 			MysteryValue: value,
