@@ -1,6 +1,7 @@
 package database
 
 import (
+	"database/sql"
 	"fmt"
 	"io"
 	"os"
@@ -16,11 +17,11 @@ const (
 	defatulMigrationsPath = "./migrations"
 )
 
-func newConn() *sqlx.DB {
+func newConn() *sql.DB {
 	connStr := buildConnString()
 	conn := sqlx.MustConnect(defaultDriverName, connStr)
 	prepareSchema(conn)
-	return conn
+	return nil
 }
 
 func buildConnString() string {

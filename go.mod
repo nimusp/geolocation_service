@@ -4,7 +4,10 @@ go 1.19
 
 replace github.com/nimusp/geolocation_service => ./
 
-require github.com/stretchr/testify v1.8.0
+require (
+	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/stretchr/testify v1.8.0
+)
 
 require (
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
