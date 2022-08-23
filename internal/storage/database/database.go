@@ -15,8 +15,13 @@ type db struct {
 	conn *sql.DB
 }
 
-func New() *db {
-	return &db{conn: newConn()}
+func New() (*db, error) {
+	conn, err := newConn()
+	if err != nil {
+		return nil, err
+	}
+
+	return &db{conn: conn}, nil
 }
 
 func (d *db) Insert(ctx context.Context, data []storage.GeoLocation, batchSize uint) error {
@@ -43,14 +48,15 @@ func (d *db) Insert(ctx context.Context, data []storage.GeoLocation, batchSize u
 		qTemplate := insertTemplate()
 		for _, item := range chunk {
 			qTemplate = qTemplate.Values(item.IPAddress, item.CountryCode, item.Country, item.City, item.Latitude, item.Longitude, item.MysteryValue)
-			query, args, err := qTemplate.ToSql()
-			if err != nil {
-				return err
-			}
+		}
 
-			if _, err = tx.ExecContext(ctx, query, args...); err != nil {
-				return err
-			}
+		query, args, err := qTemplate.ToSql()
+		if err != nil {
+			return fmt.Errorf("build query error: %w", err)
+		}
+
+		if _, err = tx.ExecContext(ctx, query, args...); err != nil {
+			return fmt.Errorf("execute query error: %w", err)
 		}
 	}
 
