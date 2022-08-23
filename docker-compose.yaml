@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  importer:
+    build:
+      context: .
+      dockerfile: cmd/importer/Dockerfile
+    container_name: importer
+    depends_on:
+      - db
+    # volumes:
+    #   - ./cmd/loader/data_dump.csv:/app-data/data_dump.csv
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      IMPORT_FROM: cmd/importer/data_dump.csv
+    networks:
+      - geolocation
+  db:
+    image: postgres:latest
+    container_name: geolocation_pg
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - geolocation
+networks:
+  geolocation:
