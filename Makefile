@@ -7,3 +7,4 @@ deps:
 .PHONY: mocks
 mocks:
 	@mockery --dir ./internal/storage --name Database --output ./mocks/database --outpkg database --with-expecter
+	@mockery --dir ./internal/importer --name DataSaver --output ./mocks/importer --outpkg importer --with-expecter
