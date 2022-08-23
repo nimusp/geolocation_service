@@ -47,8 +47,8 @@ func (p *csvParser) Extract() (*importer.Data, error) {
 	}
 
 	data := &importer.Data{
-		Rows:  make([]importer.Row, 0, len(rows)),
-		Stats: importer.Statics{RawRows: int64(len(rows))},
+		Rows:  make([]importer.GeoLocation, 0, len(rows)),
+		Stats: importer.Statics{RawRows: int64(len(rows) - 1)},
 	}
 	for i := 1; i < len(rows); i++ { // skip header
 		if len(rows[i]) != columsNumber {
@@ -100,7 +100,7 @@ func (p *csvParser) Extract() (*importer.Data, error) {
 			continue
 		}
 
-		data.Rows = append(data.Rows, importer.Row{
+		data.Rows = append(data.Rows, importer.GeoLocation{
 			IPAddress:    ip,
 			CountryCode:  countryCode,
 			Country:      country,
@@ -122,9 +122,9 @@ func (p *csvParser) Extract() (*importer.Data, error) {
 	return data, nil
 }
 
-func distinctByIP(rows []importer.Row) []importer.Row {
+func distinctByIP(rows []importer.GeoLocation) []importer.GeoLocation {
 	set := make(map[string]struct{}, len(rows))
-	unique := make([]importer.Row, 0, len(rows))
+	unique := make([]importer.GeoLocation, 0, len(rows))
 
 	for _, row := range rows {
 		if _, exists := set[row.IPAddress]; !exists {

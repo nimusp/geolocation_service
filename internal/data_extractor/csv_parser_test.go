@@ -44,7 +44,7 @@ func Test_Extract(t *testing.T) {
 200.106.141.15,SI,Nepal,DuBuquemouth,-84.87503094689836,7.206435933364332,7823011346`,
 			),
 			want: &importer.Data{
-				Rows: []importer.Row{
+				Rows: []importer.GeoLocation{
 					{
 						IPAddress:    "200.106.141.15",
 						CountryCode:  "SI",
@@ -56,7 +56,7 @@ func Test_Extract(t *testing.T) {
 					},
 				},
 				Stats: importer.Statics{
-					RawRows:         4,
+					RawRows:         3,
 					BadIPAddress:    2,
 					BadCountryCode:  2,
 					BadCountry:      2,
@@ -86,7 +86,7 @@ func Test_Extract(t *testing.T) {
 160.103.7.140,CZ,Nicaragua,New Neva,-68.31023296602508,-37.62435199624531,7301823115`,
 			),
 			want: &importer.Data{
-				Rows: []importer.Row{
+				Rows: []importer.GeoLocation{
 					{
 						IPAddress:    "200.106.141.15",
 						CountryCode:  "SI",
@@ -106,7 +106,7 @@ func Test_Extract(t *testing.T) {
 						MysteryValue: 7301823115,
 					},
 				},
-				Stats: importer.Statics{RawRows: 3},
+				Stats: importer.Statics{RawRows: 2},
 			},
 			wantErr: false,
 		},
@@ -141,18 +141,18 @@ func Test_Extract_badFilePath(t *testing.T) {
 func Test_distinctByIP(t *testing.T) {
 	testCases := []struct {
 		name string
-		rows []importer.Row
-		want []importer.Row
+		rows []importer.GeoLocation
+		want []importer.GeoLocation
 	}{
 		{
 			name: "with doubles",
-			rows: []importer.Row{{IPAddress: "127.0.0.1"}, {IPAddress: "8.8.8.8"}, {IPAddress: "127.0.0.1"}},
-			want: []importer.Row{{IPAddress: "127.0.0.1"}, {IPAddress: "8.8.8.8"}},
+			rows: []importer.GeoLocation{{IPAddress: "127.0.0.1"}, {IPAddress: "8.8.8.8"}, {IPAddress: "127.0.0.1"}},
+			want: []importer.GeoLocation{{IPAddress: "127.0.0.1"}, {IPAddress: "8.8.8.8"}},
 		},
 		{
 			name: "without doubles",
-			rows: []importer.Row{{IPAddress: "127.0.0.1"}, {IPAddress: "8.8.8.8"}, {IPAddress: "192.168.0.1"}},
-			want: []importer.Row{{IPAddress: "127.0.0.1"}, {IPAddress: "8.8.8.8"}, {IPAddress: "192.168.0.1"}},
+			rows: []importer.GeoLocation{{IPAddress: "127.0.0.1"}, {IPAddress: "8.8.8.8"}, {IPAddress: "192.168.0.1"}},
+			want: []importer.GeoLocation{{IPAddress: "127.0.0.1"}, {IPAddress: "8.8.8.8"}, {IPAddress: "192.168.0.1"}},
 		},
 	}
 
