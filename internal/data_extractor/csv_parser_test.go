@@ -6,13 +6,15 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/nimusp/geolocation_service/internal/importer"
 )
 
 func Test_Extract(t *testing.T) {
 	testCases := []struct {
 		name    string
 		data    []byte
-		want    *Data
+		want    *importer.Data
 		wantErr bool
 	}{
 		{
@@ -41,8 +43,8 @@ func Test_Extract(t *testing.T) {
 ,,,,-abc,,
 200.106.141.15,SI,Nepal,DuBuquemouth,-84.87503094689836,7.206435933364332,7823011346`,
 			),
-			want: &Data{
-				Rows: []Row{
+			want: &importer.Data{
+				Rows: []importer.Row{
 					{
 						IPAddress:    "200.106.141.15",
 						CountryCode:  "SI",
@@ -53,7 +55,7 @@ func Test_Extract(t *testing.T) {
 						MysteryValue: 7823011346,
 					},
 				},
-				Stats: Statics{
+				Stats: importer.Statics{
 					RawRows:         4,
 					BadIPAddress:    2,
 					BadCountryCode:  2,
@@ -83,8 +85,8 @@ func Test_Extract(t *testing.T) {
 200.106.141.15,SI,Nepal,DuBuquemouth,-84.87503094689836,7.206435933364332,7823011346
 160.103.7.140,CZ,Nicaragua,New Neva,-68.31023296602508,-37.62435199624531,7301823115`,
 			),
-			want: &Data{
-				Rows: []Row{
+			want: &importer.Data{
+				Rows: []importer.Row{
 					{
 						IPAddress:    "200.106.141.15",
 						CountryCode:  "SI",
@@ -104,7 +106,7 @@ func Test_Extract(t *testing.T) {
 						MysteryValue: 7301823115,
 					},
 				},
-				Stats: Statics{RawRows: 3},
+				Stats: importer.Statics{RawRows: 3},
 			},
 			wantErr: false,
 		},
@@ -117,8 +119,8 @@ func Test_Extract(t *testing.T) {
 			err := os.WriteFile(path, tc.data, os.ModePerm)
 			assert.NoError(t, err)
 
-			var parser csvParser
-			got, gotErr := parser.Extract(path)
+			parser := csvParser{path: path}
+			got, gotErr := parser.Extract()
 
 			assert.Equal(t, tc.wantErr, gotErr != nil)
 			assert.Equal(t, tc.want, got)
@@ -130,8 +132,8 @@ func Test_Extract_badFilePath(t *testing.T) {
 	dirName := t.TempDir()
 	path := filepath.Join(dirName, "data.csv")
 
-	var parser csvParser
-	_, err := parser.Extract(path)
+	parser := csvParser{path: path}
+	_, err := parser.Extract()
 
 	assert.Error(t, err)
 }
@@ -139,18 +141,18 @@ func Test_Extract_badFilePath(t *testing.T) {
 func Test_distinctByIP(t *testing.T) {
 	testCases := []struct {
 		name string
-		rows []Row
-		want []Row
+		rows []importer.Row
+		want []importer.Row
 	}{
 		{
 			name: "with doubles",
-			rows: []Row{{IPAddress: "127.0.0.1"}, {IPAddress: "8.8.8.8"}, {IPAddress: "127.0.0.1"}},
-			want: []Row{{IPAddress: "127.0.0.1"}, {IPAddress: "8.8.8.8"}},
+			rows: []importer.Row{{IPAddress: "127.0.0.1"}, {IPAddress: "8.8.8.8"}, {IPAddress: "127.0.0.1"}},
+			want: []importer.Row{{IPAddress: "127.0.0.1"}, {IPAddress: "8.8.8.8"}},
 		},
 		{
 			name: "without doubles",
-			rows: []Row{{IPAddress: "127.0.0.1"}, {IPAddress: "8.8.8.8"}, {IPAddress: "192.168.0.1"}},
-			want: []Row{{IPAddress: "127.0.0.1"}, {IPAddress: "8.8.8.8"}, {IPAddress: "192.168.0.1"}},
+			rows: []importer.Row{{IPAddress: "127.0.0.1"}, {IPAddress: "8.8.8.8"}, {IPAddress: "192.168.0.1"}},
+			want: []importer.Row{{IPAddress: "127.0.0.1"}, {IPAddress: "8.8.8.8"}, {IPAddress: "192.168.0.1"}},
 		},
 	}
 

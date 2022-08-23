@@ -4,6 +4,8 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+
+	"github.com/nimusp/geolocation_service/internal/importer"
 )
 
 // ip_address,country_code,country,city,latitude,longitude,mystery_value
@@ -19,30 +21,34 @@ const (
 
 const columsNumber = 7
 
-type csvParser struct{}
+type csvParser struct {
+	path string
+}
 
-func New() *csvParser { return new(csvParser) }
+func New(path string) *csvParser {
+	return &csvParser{path: path}
+}
 
-func (csvParser) Extract(path string) (*Data, error) {
-	file, err := os.Open(path)
+func (p *csvParser) Extract() (*importer.Data, error) {
+	file, err := os.Open(p.path)
 	if err != nil {
-		return nil, fmt.Errorf("can't open file %s: %w", path, err)
+		return nil, fmt.Errorf("can't open file %s: %w", p.path, err)
 	}
 	defer file.Close()
 
 	reader := csv.NewReader(file)
 	rows, err := reader.ReadAll()
 	if err != nil {
-		return nil, fmt.Errorf("read file %s error: %w", path, err)
+		return nil, fmt.Errorf("read file %s error: %w", p.path, err)
 	}
 
 	if len(rows) < 2 {
 		return nil, fmt.Errorf("too few rows (%d)", len(rows))
 	}
 
-	data := &Data{
-		Rows:  make([]Row, 0, len(rows)),
-		Stats: Statics{RawRows: int64(len(rows))},
+	data := &importer.Data{
+		Rows:  make([]importer.Row, 0, len(rows)),
+		Stats: importer.Statics{RawRows: int64(len(rows))},
 	}
 	for i := 1; i < len(rows); i++ { // skip header
 		if len(rows[i]) != columsNumber {
@@ -94,7 +100,7 @@ func (csvParser) Extract(path string) (*Data, error) {
 			continue
 		}
 
-		data.Rows = append(data.Rows, Row{
+		data.Rows = append(data.Rows, importer.Row{
 			IPAddress:    ip,
 			CountryCode:  countryCode,
 			Country:      country,
@@ -116,9 +122,9 @@ func (csvParser) Extract(path string) (*Data, error) {
 	return data, nil
 }
 
-func distinctByIP(rows []Row) []Row {
+func distinctByIP(rows []importer.Row) []importer.Row {
 	set := make(map[string]struct{}, len(rows))
-	unique := make([]Row, 0, len(rows))
+	unique := make([]importer.Row, 0, len(rows))
 
 	for _, row := range rows {
 		if _, exists := set[row.IPAddress]; !exists {
