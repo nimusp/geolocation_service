@@ -8,20 +8,30 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
 const (
 	defaultDriverName     = "postgres"
-	defatulMigrationsPath = "./migrations"
+	defatulMigrationsPath = "/internal/storage/database/migrations"
 )
 
-func newConn() *sql.DB {
+func newConn() (*sql.DB, error) {
 	connStr := buildConnString()
-	conn := sqlx.MustConnect(defaultDriverName, connStr)
-	prepareSchema(conn)
-	return nil
+	conn, err := sql.Open(defaultDriverName, connStr)
+	if err != nil {
+		return nil, fmt.Errorf("open connection error: %w", err)
+	}
+
+	if err = conn.Ping(); err != nil {
+		return nil, fmt.Errorf("ping DB error: %w", err)
+	}
+
+	if err = prepareSchema(conn); err != nil {
+		return nil, fmt.Errorf("prepare DB schema error: %w", err)
+	}
+
+	return conn, nil
 }
 
 func buildConnString() string {
@@ -50,15 +60,24 @@ func buildConnString() string {
 	return sb.String()
 }
 
-func prepareSchema(conn *sqlx.DB) {
-	queryes, err := readMigrations(defatulMigrationsPath)
+func prepareSchema(conn *sql.DB) error {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		return fmt.Errorf("can't get dir path: %w", err)
+	}
+
+	queryes, err := readMigrations(filepath.Join(dir, defatulMigrationsPath))
 	if err != nil {
 		panic(err)
 	}
 
 	for _, query := range queryes {
-		_ = conn.MustExec(query)
+		if _, err := conn.Exec(query); err != nil {
+			return fmt.Errorf("execute query (%s) error: %w", query, err)
+		}
 	}
+
+	return nil
 }
 
 func readMigrations(migraionPath string) ([]string, error) {
