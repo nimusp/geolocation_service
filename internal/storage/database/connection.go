@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -14,6 +15,9 @@ import (
 const (
 	defaultDriverName     = "postgres"
 	defatulMigrationsPath = "/internal/storage/database/migrations"
+
+	retryNumber = 5
+	retryPause  = time.Second
 )
 
 func newConn() (*sql.DB, error) {
@@ -23,7 +27,13 @@ func newConn() (*sql.DB, error) {
 		return nil, fmt.Errorf("open connection error: %w", err)
 	}
 
-	if err = conn.Ping(); err != nil {
+	for i := 0; i < retryNumber; i++ {
+		if err = conn.Ping(); err == nil {
+			break
+		}
+		time.Sleep(retryPause)
+	}
+	if err != nil {
 		return nil, fmt.Errorf("ping DB error: %w", err)
 	}
 
