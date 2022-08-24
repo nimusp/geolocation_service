@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/nimusp/geolocation_service/internal/dao"
+	"github.com/nimusp/geolocation_service/internal/gateway"
 	"github.com/nimusp/geolocation_service/internal/importer"
 )
 
@@ -34,16 +34,16 @@ func (s *storageWrapper) Save(ctx context.Context, data []importer.GeoLocation, 
 	return s.db.Insert(ctx, storageModels, batchSize)
 }
 
-func (s *storageWrapper) GetByIP(ctx context.Context, ipAddress string) (*dao.GeoLocation, error) {
+func (s *storageWrapper) GetByIP(ctx context.Context, ipAddress string) (*gateway.GeoLocation, error) {
 	model, err := s.db.Select(ctx, ipAddress)
 	if err != nil {
 		if errors.Is(err, ErrNoData) {
-			return nil, dao.ErrNoData
+			return nil, gateway.ErrNoData
 		}
 		return nil, err
 	}
 
-	return &dao.GeoLocation{
+	return &gateway.GeoLocation{
 		IPAddress:    model.IPAddress,
 		CountryCode:  model.CountryCode,
 		Country:      model.Country,

@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/nimusp/geolocation_service/internal/dao"
+	"github.com/nimusp/geolocation_service/internal/gateway"
 	"github.com/nimusp/geolocation_service/internal/importer"
 	"github.com/nimusp/geolocation_service/internal/storage"
 	mock_database "github.com/nimusp/geolocation_service/mocks/database"
@@ -51,7 +51,7 @@ func Test_GetByIP(t *testing.T) {
 		name      string
 		selectRes *storage.GeoLocation
 		selectErr error
-		want      *dao.GeoLocation
+		want      *gateway.GeoLocation
 		wantErr   bool
 	}{
 		{
@@ -78,7 +78,7 @@ func Test_GetByIP(t *testing.T) {
 				MysteryValue: 42,
 			},
 			selectErr: nil,
-			want: &dao.GeoLocation{
+			want: &gateway.GeoLocation{
 				IPAddress:    "0.0.0.0",
 				CountryCode:  "NL",
 				Country:      "Netherlands",
@@ -102,7 +102,7 @@ func Test_GetByIP(t *testing.T) {
 
 			assert.Equal(t, tc.wantErr, gotErr != nil)
 			if tc.selectErr != nil && errors.Is(tc.selectErr, storage.ErrNoData) {
-				assert.True(t, errors.Is(gotErr, dao.ErrNoData))
+				assert.True(t, errors.Is(gotErr, gateway.ErrNoData))
 			}
 			assert.Equal(t, tc.want, got)
 		})
