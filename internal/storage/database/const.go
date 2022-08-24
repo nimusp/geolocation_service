@@ -5,4 +5,5 @@ const (
 	envPort     = "DB_PORT"
 	envUser     = "DB_USER"
 	envPassword = "DB_PASSWORD"
+	envDbName   = "DB_NAME"
 )

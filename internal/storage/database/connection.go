@@ -67,6 +67,11 @@ func buildConnString() string {
 		sb.WriteString(password)
 	}
 
+	if dbName := os.Getenv(envDbName); len(dbName) > 0 {
+		sb.WriteString(" dbname=")
+		sb.WriteString(dbName)
+	}
+
 	return sb.String()
 }
 

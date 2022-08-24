@@ -15,10 +15,6 @@ fmt: ## format *.go files
 test: ## run all tests
 	go test ./... -cover
 
-.PHONY: vendor
-vendor: ## save all deps to vendor
-	go mod vendor
-
 .PHONY: mocks
 mocks: ## rebuild all mocks
 	@mockery --dir ./internal/storage --name Database --output ./mocks/database --outpkg database --with-expecter
