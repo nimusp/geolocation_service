@@ -51,8 +51,8 @@ type DAO_GetByIP_Call struct {
 }
 
 // GetByIP is a helper method to define mock.On call
-//  - _a0 context.Context
-//  - _a1 string
+//   - _a0 context.Context
+//   - _a1 string
 func (_e *DAO_Expecter) GetByIP(_a0 interface{}, _a1 interface{}) *DAO_GetByIP_Call {
 	return &DAO_GetByIP_Call{Call: _e.mock.On("GetByIP", _a0, _a1)}
 }

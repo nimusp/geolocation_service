@@ -42,9 +42,9 @@ type DataSaver_Save_Call struct {
 }
 
 // Save is a helper method to define mock.On call
-//  - _a0 context.Context
-//  - _a1 []importer.GeoLocation
-//  - _a2 uint
+//   - _a0 context.Context
+//   - _a1 []importer.GeoLocation
+//   - _a2 uint
 func (_e *DataSaver_Expecter) Save(_a0 interface{}, _a1 interface{}, _a2 interface{}) *DataSaver_Save_Call {
 	return &DataSaver_Save_Call{Call: _e.mock.On("Save", _a0, _a1, _a2)}
 }

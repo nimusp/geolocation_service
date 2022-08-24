@@ -42,9 +42,9 @@ type Database_Insert_Call struct {
 }
 
 // Insert is a helper method to define mock.On call
-//  - ctx context.Context
-//  - data []storage.GeoLocation
-//  - batchSize uint
+//   - ctx context.Context
+//   - data []storage.GeoLocation
+//   - batchSize uint
 func (_e *Database_Expecter) Insert(ctx interface{}, data interface{}, batchSize interface{}) *Database_Insert_Call {
 	return &Database_Insert_Call{Call: _e.mock.On("Insert", ctx, data, batchSize)}
 }
@@ -90,8 +90,8 @@ type Database_Select_Call struct {
 }
 
 // Select is a helper method to define mock.On call
-//  - ctx context.Context
-//  - ipAddress string
+//   - ctx context.Context
+//   - ipAddress string
 func (_e *Database_Expecter) Select(ctx interface{}, ipAddress interface{}) *Database_Select_Call {
 	return &Database_Select_Call{Call: _e.mock.On("Select", ctx, ipAddress)}
 }
