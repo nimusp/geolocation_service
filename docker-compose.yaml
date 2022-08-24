@@ -1,6 +1,23 @@
 version: "3.8"
 
 services:
+  gateway:
+    build:
+      context: .
+      dockerfile: cmd/gateway/Dockerfile
+    container_name: geolocation_api
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      GATEWAY_PORT: 8888
+    ports:
+      - "8888:8888"
+    depends_on:
+      - db
+    networks:
+      - geolocation
   importer:
     build:
       context: .
@@ -8,8 +25,6 @@ services:
     container_name: importer
     depends_on:
       - db
-    # volumes:
-    #   - ./cmd/loader/data_dump.csv:/app-data/data_dump.csv
     environment:
       DB_HOST: db
       DB_PORT: 5432
